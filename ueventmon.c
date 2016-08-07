@@ -18,14 +18,13 @@
 
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <poll.h>
 #include <errno.h>
 
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <linux/netlink.h>
-
-#include <cutils/log.h>
 
 #define UEVENT_BUFFER_SIZE 2048
 
@@ -51,14 +50,14 @@ static int open_uevent()
 
 	s = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
 	if(s < 0) {
-		LOGE("%s socket failed: %s", __func__, strerror(errno));
+		fprintf(stderr, "%s socket failed: %s", __func__, strerror(errno));
 		return -1;
 	}
 
 	setsockopt(s, SOL_SOCKET, SO_RCVBUFFORCE, &sz, sizeof(sz));
 
 	if(bind(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		LOGE("%s bind failed: %s", __func__, strerror(errno));
+		fprintf(stderr, "%s bind failed: %s", __func__, strerror(errno));
 		close(s);
 		return -1;
 	}
@@ -83,7 +82,7 @@ int uevent_next_event(int fd, char* buffer, int buffer_length)
 			if (count > 0) {
 				return count;
 			}
-			LOGE("%s recv failed: %s", __func__, strerror(errno));
+			fprintf(stderr, "%s recv failed: %s", __func__, strerror(errno));
 		}
 	}
     
